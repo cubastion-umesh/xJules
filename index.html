@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NHIDCL - SAP Enterprise Portal Prototype</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Top Shell Bar -->
+    <header class="sap-header">
+        <div class="header-left">
+            <button id="toggle-sidebar-btn" class="icon-btn" title="Toggle Menu"><i class="fas fa-bars"></i></button>
+            <div class="brand-logo">
+                <span class="logo-badge">NHIDCL</span>
+                <span class="brand-title">SAP Enterprise Systems Portal</span>
+            </div>
+        </div>
+        <div class="header-search">
+            <i class="fas fa-search search-icon"></i>
+            <input type="text" id="global-search-input" placeholder="Search T-Code, Process, Project, Document, or Module...">
+        </div>
+        <div class="header-right">
+            <div class="role-selector-wrap">
+                <label for="user-role-select"><i class="fas fa-user-shield"></i> Role:</label>
+                <select id="user-role-select">
+                    <option value="project_manager">Project Manager (PS/PM)</option>
+                    <option value="finance_officer">Finance Officer (FI-CO)</option>
+                    <option value="materials_manager">Materials Manager (MM)</option>
+                    <option value="site_engineer">Site Engineer (PS/QM)</option>
+                    <option value="executive_director" selected>Executive Director / Admin</option>
+                </select>
+            </div>
+            <button class="icon-btn notification-btn" title="Notifications">
+                <i class="fas fa-bell"></i>
+                <span class="badge">4</span>
+            </button>
+            <div class="user-profile">
+                <div class="avatar">NH</div>
+                <div class="user-info">
+                    <span class="user-name">NHIDCL Official</span>
+                    <span class="user-dept">HQ - New Delhi</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sap-sidebar" id="sidebar">
+            <nav class="sidebar-nav">
+                <div class="nav-section-title">Overview</div>
+                <a href="#" class="nav-item active" data-view="dashboard">
+                    <i class="fas fa-tachometer-alt"></i> <span>Dashboard & KPIs</span>
+                </a>
+
+                <div class="nav-section-title">Functional Modules</div>
+
+                <a href="#" class="nav-item" data-view="ps-module">
+                    <i class="fas fa-project-diagram"></i> <span>Project Systems (PS)</span>
+                </a>
+
+                <a href="#" class="nav-item" data-view="fico-module">
+                    <i class="fas fa-file-invoice-dollar"></i> <span>Finance & Controlling (FICO)</span>
+                </a>
+
+                <a href="#" class="nav-item" data-view="mm-module">
+                    <i class="fas fa-boxes"></i> <span>Materials Management (MM)</span>
+                </a>
+
+                <a href="#" class="nav-item" data-view="contract-module">
+                    <i class="fas fa-file-contract"></i> <span>Contract & RA Bills</span>
+                </a>
+
+                <a href="#" class="nav-item" data-view="pm-module">
+                    <i class="fas fa-tools"></i> <span>Plant & Maintenance (PM)</span>
+                </a>
+
+                <a href="#" class="nav-item" data-view="land-module">
+                    <i class="fas fa-map-marked-alt"></i> <span>Land Acquisition (RE-FX)</span>
+                </a>
+
+                <a href="#" class="nav-item" data-view="hcm-module">
+                    <i class="fas fa-users-cog"></i> <span>Human Capital (HCM)</span>
+                </a>
+
+                <a href="#" class="nav-item" data-view="qm-module">
+                    <i class="fas fa-award"></i> <span>Quality & Safety (QM/HSE)</span>
+                </a>
+
+                <div class="nav-section-title">Workflows</div>
+                <a href="#" class="nav-item" data-view="workflow-approvals">
+                    <i class="fas fa-tasks"></i> <span>Pending Approvals</span>
+                    <span class="nav-badge">7</span>
+                </a>
+                <a href="#" class="nav-item" data-view="audit-trail">
+                    <i class="fas fa-history"></i> <span>Audit Log & T-Codes</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Workspace -->
+        <main class="sap-workspace">
+
+            <!-- DASHBOARD VIEW -->
+            <section id="view-dashboard" class="view-panel active">
+                <div class="page-header">
+                    <div>
+                        <h2>NHIDCL SAP Executive Dashboard</h2>
+                        <p class="subtitle">Real-time functional process monitoring across National Highway & Infrastructure Projects</p>
+                    </div>
+                    <div class="header-actions">
+                        <button class="btn btn-secondary" id="btn-refresh-dash"><i class="fas fa-sync-alt"></i> Refresh</button>
+                        <button class="btn btn-primary" id="btn-quick-process"><i class="fas fa-plus"></i> Initiate Process</button>
+                    </div>
+                </div>
+
+                <!-- KPI Metric Cards -->
+                <div class="kpi-grid">
+                    <div class="kpi-card border-left-blue">
+                        <div class="kpi-icon"><i class="fas fa-road"></i></div>
+                        <div class="kpi-content">
+                            <span class="kpi-label">Active Highway Projects</span>
+                            <span class="kpi-value" id="kpi-active-projects">142</span>
+                            <span class="kpi-subtext"><i class="fas fa-arrow-up text-success"></i> 12 in North-East Region</span>
+                        </div>
+                    </div>
+                    <div class="kpi-card border-left-green">
+                        <div class="kpi-icon"><i class="fas fa-coins"></i></div>
+                        <div class="kpi-content">
+                            <span class="kpi-label">Capital Expenditure (YTD)</span>
+                            <span class="kpi-value" id="kpi-capex">₹ 14,850 Cr</span>
+                            <span class="kpi-subtext">88.4% Budget Utilization</span>
+                        </div>
+                    </div>
+                    <div class="kpi-card border-left-orange">
+                        <div class="kpi-icon"><i class="fas fa-file-invoice"></i></div>
+                        <div class="kpi-content">
+                            <span class="kpi-label">Pending RA Bills</span>
+                            <span class="kpi-value" id="kpi-pending-bills">28</span>
+                            <span class="kpi-subtext text-warning"><i class="fas fa-clock"></i> Avg turnaround: 4.2 days</span>
+                        </div>
+                    </div>
+                    <div class="kpi-card border-left-purple">
+                        <div class="kpi-icon"><i class="fas fa-shopping-cart"></i></div>
+                        <div class="kpi-content">
+                            <span class="kpi-label">Active Purchase Orders</span>
+                            <span class="kpi-value" id="kpi-active-pos">310</span>
+                            <span class="kpi-subtext">Materials & Sub-contracts</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Functional Flow Summary -->
+                <div class="card margin-top-lg">
+                    <div class="card-header">
+                        <h3><i class="fas fa-sitemap"></i> SAP Integrated Process Pipeline (NHIDCL End-to-End Workflow)</h3>
+                        <span class="tag tag-info">Standard SAP Integration</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="process-stepper-horizontal">
+                            <div class="step-item completed" data-step="1">
+                                <div class="step-circle"><i class="fas fa-project-diagram"></i></div>
+                                <div class="step-title">1. PS Module</div>
+                                <div class="step-desc">WBS & Budget Allocation</div>
+                            </div>
+                            <div class="step-connector completed"></div>
+                            <div class="step-item completed" data-step="2">
+                                <div class="step-circle"><i class="fas fa-file-contract"></i></div>
+                                <div class="step-title">2. Tender & MM</div>
+                                <div class="step-desc">Requisition & Award (PO)</div>
+                            </div>
+                            <div class="step-connector completed"></div>
+                            <div class="step-item active" data-step="3">
+                                <div class="step-circle"><i class="fas fa-truck-loading"></i></div>
+                                <div class="step-title">3. PM & QM</div>
+                                <div class="step-desc">Execution & Quality Check</div>
+                            </div>
+                            <div class="step-connector"></div>
+                            <div class="step-item" data-step="4">
+                                <div class="step-circle"><i class="fas fa-calculator"></i></div>
+                                <div class="step-title">4. Contract / RA</div>
+                                <div class="step-desc">MB Measurement & RA Bill</div>
+                            </div>
+                            <div class="step-connector"></div>
+                            <div class="step-item" data-step="5">
+                                <div class="step-circle"><i class="fas fa-money-check-alt"></i></div>
+                                <div class="step-title">5. FICO Module</div>
+                                <div class="step-desc">Verification & Disbursement</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Process Activity Table -->
+                <div class="grid-2-col margin-top-lg">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-history"></i> Recent SAP Process Transactions</h3>
+                            <button class="btn btn-sm btn-outline" id="btn-export-log"><i class="fas fa-download"></i> Export</button>
+                        </div>
+                        <div class="card-body padding-0">
+                            <div class="table-responsive">
+                                <table class="sap-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Doc # / T-Code</th>
+                                            <th>Module</th>
+                                            <th>Process Details</th>
+                                            <th>Amount</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="recent-transactions-tbody">
+                                        <!-- Injected via JS -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-tasks"></i> Quick Action Launchpad (SAP T-Codes)</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="tcode-grid">
+                                <div class="tcode-tile" data-action="open-modal-ps-create">
+                                    <span class="tcode-code">CJ01 / CJ20N</span>
+                                    <span class="tcode-name">Create WBS & Project Charter</span>
+                                    <i class="fas fa-chevron-right arrow-icon"></i>
+                                </div>
+                                <div class="tcode-tile" data-action="open-modal-mm-pr">
+                                    <span class="tcode-code">ME51N</span>
+                                    <span class="tcode-name">Create Purchase Requisition</span>
+                                    <i class="fas fa-chevron-right arrow-icon"></i>
+                                </div>
+                                <div class="tcode-tile" data-action="open-modal-ra-bill">
+                                    <span class="tcode-code">ML81N / MIGO</span>
+                                    <span class="tcode-name">Submit RA Bill / Service Entry Sheet</span>
+                                    <i class="fas fa-chevron-right arrow-icon"></i>
+                                </div>
+                                <div class="tcode-tile" data-action="open-modal-fico-payment">
+                                    <span class="tcode-code">F110 / MIRO</span>
+                                    <span class="tcode-name">Post Vendor Invoice & Payment</span>
+                                    <i class="fas fa-chevron-right arrow-icon"></i>
+                                </div>
+                                <div class="tcode-tile" data-action="open-modal-pm-order">
+                                    <span class="tcode-code">IW31</span>
+                                    <span class="tcode-name">Create Maintenance Work Order</span>
+                                    <i class="fas fa-chevron-right arrow-icon"></i>
+                                </div>
+                                <div class="tcode-tile" data-action="open-modal-land-parcel">
+                                    <span class="tcode-code">RE-FX / LA</span>
+                                    <span class="tcode-name">Log Land Parcel Compensation</span>
+                                    <i class="fas fa-chevron-right arrow-icon"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- PROJECT SYSTEMS (PS) MODULE -->
+            <section id="view-ps-module" class="view-panel">
+                <div class="page-header">
+                    <div>
+                        <h2>Project Systems (PS) Module</h2>
+                        <p class="subtitle">WBS Element Creation, Project Chartering, Cost Center Mapping, and Physical Progress Tracking</p>
+                    </div>
+                    <button class="btn btn-primary" id="btn-create-ps-proj"><i class="fas fa-plus-circle"></i> Create New Project (CJ01)</button>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-network-wired"></i> NHIDCL Infrastructure Projects & WBS Hierarchy</h3>
+                        <div class="filter-group">
+                            <input type="text" class="form-control form-control-sm" id="ps-filter-search" placeholder="Filter by Project / WBS Code...">
+                            <select class="form-control form-control-sm" id="ps-filter-status">
+                                <option value="ALL">All Statuses</option>
+                                <option value="In Progress">In Progress</option>
+                                <option value="Approved">Approved</option>
+                                <option value="Under Review">Under Review</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="card-body padding-0">
+                        <div class="table-responsive">
+                            <table class="sap-table">
+                                <thead>
+                                    <tr>
+                                        <th>Project Def / WBS</th>
+                                        <th>Project Title & Stretch</th>
+                                        <th>State / RO</th>
+                                        <th>Sanctioned Budget</th>
+                                        <th>Incurred Cost</th>
+                                        <th>Physical %</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="ps-projects-tbody">
+                                    <!-- Injected via JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- FINANCE & CONTROLLING (FICO) MODULE -->
+            <section id="view-fico-module" class="view-panel">
+                <div class="page-header">
+                    <div>
+                        <h2>Finance & Controlling (FICO) Module</h2>
+                        <p class="subtitle">General Ledger, Accounts Payable, Vendor Disbursements, Budget Control (F110 / MIRO / FB60)</p>
+                    </div>
+                    <button class="btn btn-primary" id="btn-create-fico-invoice"><i class="fas fa-receipt"></i> Post Vendor Invoice (MIRO)</button>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-book-open"></i> Vendor Ledger & Payment Vouchers</h3>
+                        <div class="filter-group">
+                            <input type="text" class="form-control form-control-sm" id="fico-search" placeholder="Search Vendor / Voucher #...">
+                        </div>
+                    </div>
+                    <div class="card-body padding-0">
+                        <div class="table-responsive">
+                            <table class="sap-table">
+                                <thead>
+                                    <tr>
+                                        <th>Voucher # / Doc</th>
+                                        <th>Vendor Name</th>
+                                        <th>GL Account / Project WBS</th>
+                                        <th>Invoice Amount</th>
+                                        <th>TDS / Deductions</th>
+                                        <th>Net Payable</th>
+                                        <th>Posting Status</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="fico-vouchers-tbody">
+                                    <!-- Injected via JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- MATERIALS MANAGEMENT (MM) MODULE -->
+            <section id="view-mm-module" class="view-panel">
+                <div class="page-header">
+                    <div>
+                        <h2>Materials Management (MM) Module</h2>
+                        <p class="subtitle">Purchase Requisition (ME51N), Purchase Order (ME21N), Goods Receipt (MIGO) & Inventory</p>
+                    </div>
+                    <button class="btn btn-primary" id="btn-create-mm-pr"><i class="fas fa-cart-plus"></i> Create Purchase Requisition (ME51N)</button>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-boxes"></i> Purchase Requisitions & Orders Register</h3>
+                    </div>
+                    <div class="card-body padding-0">
+                        <div class="table-responsive">
+                            <table class="sap-table">
+                                <thead>
+                                    <tr>
+                                        <th>PR / PO Number</th>
+                                        <th>Material / Service Description</th>
+                                        <th>Plant / Site Location</th>
+                                        <th>Quantity</th>
+                                        <th>Est. Total Value</th>
+                                        <th>Vendor / Tender</th>
+                                        <th>Stage</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="mm-orders-tbody">
+                                    <!-- Injected via JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- CONTRACT & RA BILLS MODULE -->
+            <section id="view-contract-module" class="view-panel">
+                <div class="page-header">
+                    <div>
+                        <h2>Contract & RA Bill Management</h2>
+                        <p class="subtitle">Running Account (RA) Bill Processing, Measurement Book (MB) Entry (ML81N), BG Tracking</p>
+                    </div>
+                    <button class="btn btn-primary" id="btn-create-ra-bill"><i class="fas fa-file-signature"></i> Submit New RA Bill</button>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-file-invoice"></i> Contractor RA Bills Register</h3>
+                    </div>
+                    <div class="card-body padding-0">
+                        <div class="table-responsive">
+                            <table class="sap-table">
+                                <thead>
+                                    <tr>
+                                        <th>Bill #</th>
+                                        <th>Contract Agreement #</th>
+                                        <th>Contractor Name</th>
+                                        <th>MB Ref / Period</th>
+                                        <th>Claimed Amount</th>
+                                        <th>Verified Amount</th>
+                                        <th>Approval Status</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="contract-bills-tbody">
+                                    <!-- Injected via JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- PLANT & MAINTENANCE (PM) MODULE -->
+            <section id="view-pm-module" class="view-panel">
+                <div class="page-header">
+                    <div>
+                        <h2>Plant & Maintenance (PM) Module</h2>
+                        <p class="subtitle">Heavy Equipment Fleet Tracking, Breakdown Logs, Preventive Maintenance (IW31 / IE01)</p>
+                    </div>
+                    <button class="btn btn-primary" id="btn-create-pm-ticket"><i class="fas fa-wrench"></i> Log Maintenance Ticket (IW31)</button>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-truck-monster"></i> Equipment Master & Maintenance Work Orders</h3>
+                    </div>
+                    <div class="card-body padding-0">
+                        <div class="table-responsive">
+                            <table class="sap-table">
+                                <thead>
+                                    <tr>
+                                        <th>Equipment ID</th>
+                                        <th>Asset Name / Machinery</th>
+                                        <th>Assigned Stretch / RO</th>
+                                        <th>Maintenance Type</th>
+                                        <th>Last Serviced</th>
+                                        <th>Operational Status</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="pm-equipment-tbody">
+                                    <!-- Injected via JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- REAL ESTATE & LAND ACQUISITION (RE-FX) MODULE -->
+            <section id="view-land-module" class="view-panel">
+                <div class="page-header">
+                    <div>
+                        <h2>Real Estate & Land Acquisition (RE-FX / LA)</h2>
+                        <p class="subtitle">3A/3D Notification Tracking, Land Parcel Valuation, CALA Disbursement, Encroachment Monitoring</p>
+                    </div>
+                    <button class="btn btn-primary" id="btn-create-land-parcel"><i class="fas fa-map-marker-alt"></i> Register Land Parcel</button>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-mountain"></i> Land Acquisition & Compensation Register</h3>
+                    </div>
+                    <div class="card-body padding-0">
+                        <div class="table-responsive">
+                            <table class="sap-table">
+                                <thead>
+                                    <tr>
+                                        <th>Parcel ID</th>
+                                        <th>Village / Chainage (Km)</th>
+                                        <th>Land Area (Hectares)</th>
+                                        <th>Gazette Notification</th>
+                                        <th>Compensation Award (₹)</th>
+                                        <th>Disbursement Status</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="land-parcels-tbody">
+                                    <!-- Injected via JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- HUMAN CAPITAL MANAGEMENT (HCM) MODULE -->
+            <section id="view-hcm-module" class="view-panel">
+                <div class="page-header">
+                    <div>
+                        <h2>Human Capital Management (HCM) Module</h2>
+                        <p class="subtitle">Employee Master, Site Transfers, Attendance, Tour & Travel Expense Claims (PA30 / PR05)</p>
+                    </div>
+                    <button class="btn btn-primary" id="btn-create-hcm-claim"><i class="fas fa-plane-departure"></i> Submit Travel Claim</button>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-user-tie"></i> Key Personnel & Site Deployment</h3>
+                    </div>
+                    <div class="card-body padding-0">
+                        <div class="table-responsive">
+                            <table class="sap-table">
+                                <thead>
+                                    <tr>
+                                        <th>Emp ID</th>
+                                        <th>Employee Name</th>
+                                        <th>Designation</th>
+                                        <th>Current Posting / RO</th>
+                                        <th>Assigned Project WBS</th>
+                                        <th>Contact / Email</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="hcm-employees-tbody">
+                                    <!-- Injected via JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- QUALITY & SAFETY (QM/HSE) MODULE -->
+            <section id="view-qm-module" class="view-panel">
+                <div class="page-header">
+                    <div>
+                        <h2>Quality & Safety Management (QM / HSE)</h2>
+                        <p class="subtitle">Bitumen / Concrete Test Certificates, Safety Inspections, Non-Conformance Reports (QA01)</p>
+                    </div>
+                    <button class="btn btn-primary" id="btn-create-qm-log"><i class="fas fa-clipboard-check"></i> Log Quality Inspection</button>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-vial"></i> Material Quality Inspection & Lab Reports</h3>
+                    </div>
+                    <div class="card-body padding-0">
+                        <div class="table-responsive">
+                            <table class="sap-table">
+                                <thead>
+                                    <tr>
+                                        <th>Inspection Lot #</th>
+                                        <th>Sample Type / Bitumen Mix</th>
+                                        <th>Chainage / Batch</th>
+                                        <th>Inspector Name</th>
+                                        <th>Cube Strength / Result</th>
+                                        <th>Clearance Status</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="qm-inspections-tbody">
+                                    <!-- Injected via JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- WORKFLOW APPROVALS VIEW -->
+            <section id="view-workflow-approvals" class="view-panel">
+                <div class="page-header">
+                    <div>
+                        <h2>Pending Approval Inbox</h2>
+                        <p class="subtitle">Unified SAP Workflow Items Requiring Functional Approval</p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-inbox"></i> Items Awaiting Approval</h3>
+                    </div>
+                    <div class="card-body padding-0">
+                        <div class="table-responsive">
+                            <table class="sap-table">
+                                <thead>
+                                    <tr>
+                                        <th>Workflow ID</th>
+                                        <th>Process / T-Code</th>
+                                        <th>Submitted By</th>
+                                        <th>Value / Details</th>
+                                        <th>Submission Date</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="workflow-approvals-tbody">
+                                    <!-- Injected via JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- AUDIT TRAIL VIEW -->
+            <section id="view-audit-trail" class="view-panel">
+                <div class="page-header">
+                    <div>
+                        <h2>Audit Trail & SAP Transaction Directory</h2>
+                        <p class="subtitle">Complete catalog of SAP transaction codes (T-Codes) and process execution log</p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-book"></i> NHIDCL SAP Master T-Code Reference Guide</h3>
+                    </div>
+                    <div class="card-body padding-0">
+                        <div class="table-responsive">
+                            <table class="sap-table">
+                                <thead>
+                                    <tr>
+                                        <th>Module</th>
+                                        <th>T-Code</th>
+                                        <th>Transaction Name</th>
+                                        <th>Functional Description</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr><td><strong>PS</strong></td><td><code>CJ01 / CJ02</code></td><td>Create / Change Project Definition</td><td>Setup highway project header & parameters.</td></tr>
+                                    <tr><td><strong>PS</strong></td><td><code>CJ20N</code></td><td>Project Builder</td><td>Manage Work Breakdown Structure (WBS) & activities.</td></tr>
+                                    <tr><td><strong>MM</strong></td><td><code>ME51N</code></td><td>Create Purchase Requisition</td><td>Raise demand for construction materials/services.</td></tr>
+                                    <tr><td><strong>MM</strong></td><td><code>ME21N</code></td><td>Create Purchase Order</td><td>Issue PO to approved contractor/vendor.</td></tr>
+                                    <tr><td><strong>MM</strong></td><td><code>MIGO</code></td><td>Goods Receipt / Issue</td><td>Record arrival of materials at site warehouse.</td></tr>
+                                    <tr><td><strong>Contract</strong></td><td><code>ML81N</code></td><td>Service Entry Sheet (SES)</td><td>Approve completed civil works for RA Bill.</td></tr>
+                                    <tr><td><strong>FICO</strong></td><td><code>MIRO</code></td><td>Enter Incoming Invoice</td><td>Verify vendor bill against PO and SES.</td></tr>
+                                    <tr><td><strong>FICO</strong></td><td><code>F110</code></td><td>Automatic Payment Run</td><td>Execute bulk payment disbursement to vendors.</td></tr>
+                                    <tr><td><strong>PM</strong></td><td><code>IW31</code></td><td>Create Order</td><td>Schedule maintenance work order for machinery.</td></tr>
+                                    <tr><td><strong>RE-FX</strong></td><td><code>RELA</code></td><td>Land Acquisition Master</td><td>Manage land acquisition notifications & compensation.</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- MODALS FOR PROCESS CREATION / DIALOGS -->
+    <div class="modal-overlay" id="generic-modal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3 id="modal-title">Process Title</h3>
+                <button class="close-modal-btn" id="modal-close-btn">&times;</button>
+            </div>
+            <div class="modal-body" id="modal-body-content">
+                <!-- Dynamic form injected via JS -->
+            </div>
+            <div class="modal-footer" id="modal-footer-content">
+                <button class="btn btn-secondary" id="modal-cancel-btn">Cancel</button>
+                <button class="btn btn-primary" id="modal-submit-btn">Submit Process</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Toast Container -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <script src="app.js"></script>
+</body>
+</html>
