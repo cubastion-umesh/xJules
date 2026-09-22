@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SAP ECC6 EHP8 to RISE with SAP S/4HANA Transformation Plan</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --sap-navy: #0f1b29;
+            --sap-blue: #0a6ed1;
+            --sap-gold: #f0ab00;
+            --bg-dark: #121921;
+            --card-bg: #1e293b;
+            --text-light: #f8fafc;
+            --text-muted: #94a3b8;
+            --border-color: #334155;
+            --accent-green: #10b981;
+            --accent-red: #ef4444;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* Top Header */
+        header {
+            height: 60px;
+            background-color: var(--sap-navy);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 700;
+            font-size: 16px;
+        }
+
+        .badge-rise {
+            background: linear-gradient(135deg, #0a6ed1, #6366f1);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .controls {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .btn-nav {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-light);
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .btn-nav:hover {
+            background: var(--sap-blue);
+            border-color: var(--sap-blue);
+        }
+
+        /* Slide Container */
+        .presentation-container {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+            padding: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .slide {
+            display: none;
+            width: 100%;
+            max-width: 1200px;
+            height: 100%;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            flex-direction: column;
+            animation: fadeIn 0.4s ease;
+            overflow-y: auto;
+        }
+
+        .slide.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .slide-header {
+            margin-bottom: 24px;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+
+        .slide-title {
+            font-size: 26px;
+            color: #ffffff;
+            font-weight: 700;
+        }
+
+        .slide-subtitle {
+            font-size: 14px;
+            color: var(--sap-gold);
+            font-weight: 600;
+        }
+
+        .slide-body {
+            flex: 1;
+        }
+
+        /* Content Components */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        .grid-4 {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+        }
+
+        .info-card {
+            background-color: rgba(15, 23, 42, 0.6);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 20px;
+        }
+
+        .info-card h4 {
+            color: var(--sap-blue);
+            margin-bottom: 10px;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .info-card p, .info-card li {
+            font-size: 13px;
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+
+        ul.styled-list {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        ul.styled-list li {
+            position: relative;
+            padding-left: 20px;
+            margin-bottom: 8px;
+        }
+
+        ul.styled-list li::before {
+            content: '➔';
+            position: absolute;
+            left: 0;
+            color: var(--sap-gold);
+        }
+
+        /* Stepper Phase Layout */
+        .phase-stepper {
+            display: flex;
+            gap: 12px;
+            margin-top: 10px;
+        }
+
+        .phase-box {
+            flex: 1;
+            background: rgba(30, 41, 59, 0.9);
+            border-top: 4px solid var(--sap-blue);
+            border-radius: 6px;
+            padding: 16px;
+            border-right: 1px solid var(--border-color);
+            border-bottom: 1px solid var(--border-color);
+            border-left: 1px solid var(--border-color);
+        }
+
+        .phase-box h5 {
+            font-size: 14px;
+            color: #ffffff;
+            margin-bottom: 6px;
+        }
+
+        .phase-box ul {
+            font-size: 12px;
+            color: var(--text-muted);
+            list-style-type: square;
+            padding-left: 16px;
+        }
+
+        /* Footer progress */
+        footer {
+            height: 40px;
+            background-color: var(--sap-navy);
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .progress-bar {
+            width: 200px;
+            height: 6px;
+            background: var(--border-color);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--sap-gold);
+            width: 12.5%;
+            transition: width 0.3s;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo-area">
+            <i class="fas fa-cloud-upload-alt text-sap-blue" style="color: #0a6ed1; font-size: 20px;"></i>
+            <span>SAP ECC6 EHP8 (Oracle) ➔ RISE with SAP S/4HANA</span>
+            <span class="badge-rise">Solution Architecture Deck</span>
+        </div>
+        <div class="controls">
+            <button class="btn-nav" id="btn-prev"><i class="fas fa-chevron-left"></i> Prev</button>
+            <span id="slide-number" style="font-size: 14px; font-weight: 600;">Slide 1 / 8</span>
+            <button class="btn-nav" id="btn-next">Next <i class="fas fa-chevron-right"></i></button>
+        </div>
+    </header>
+
+    <div class="presentation-container">
+
+        <!-- SLIDE 1: Executive Overview -->
+        <div class="slide active" id="slide-1">
+            <div class="slide-header">
+                <div>
+                    <h2 class="slide-title">Executive Transformation Overview</h2>
+                    <p class="slide-subtitle">Migrating SAP ECC6 EHP8 on Oracle DB to RISE with SAP S/4HANA Cloud</p>
+                </div>
+                <span class="badge-rise">Architectural Roadmap</span>
+            </div>
+            <div class="slide-body">
+                <div class="grid-2">
+                    <div class="info-card">
+                        <h4><i class="fas fa-bullseye"></i> Business & Strategic Drivers</h4>
+                        <ul class="styled-list">
+                            <li><strong>Legacy Obsolescence:</strong> ECC6 mainstream support ending & Oracle DB lock-in mitigation.</li>
+                            <li><strong>Cloud Agility & Managed Services:</strong> Single-contract RISE subscription covering Infrastructure, Basis, and Application Management.</li>
+                            <li><strong>Real-time Analytics & AI:</strong> Universal Journal (ACDOCA) in-memory speed & embedded S/4HANA Fiori UX.</li>
+                            <li><strong>Process Modernization:</strong> Transition from legacy custom Z-code to Clean Core SAP BTP extensible framework.</li>
+                        </ul>
+                    </div>
+                    <div class="info-card">
+                        <h4><i class="fas fa-cogs"></i> Technical Migration Scope</h4>
+                        <ul class="styled-list">
+                            <li><strong>Source State:</strong> SAP ECC6 EHP8 on Oracle 19c (AnyDB).</li>
+                            <li><strong>Target State:</strong> RISE with SAP S/4HANA Cloud (Private Edition) on High Availability HANA DB.</li>
+                            <li><strong>Migration Strategy:</strong> Brownfield / System Conversion via SUM DMO (Database Migration Option with Unicode / HANA Migration).</li>
+                            <li><strong>Integration Layer:</strong> SAP Business Technology Platform (BTP) & SAP Cloud Integration.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 2: SAP Activate Methodology -->
+        <div class="slide" id="slide-2">
+            <div class="slide-header">
+                <div>
+                    <h2 class="slide-title">Transformation Phases (SAP Activate Framework)</h2>
+                    <p class="slide-subtitle">Structured 6-Phase Execution Strategy for RISE Conversion</p>
+                </div>
+            </div>
+            <div class="slide-body">
+                <div class="phase-stepper">
+                    <div class="phase-box">
+                        <h5>1. Discover</h5>
+                        <ul>
+                            <li>Readiness Check 2.0</li>
+                            <li>BSR & Process Discovery</li>
+                            <li>RISE SLA & Architecture</li>
+                            <li>Business Case Sign-off</li>
+                        </ul>
+                    </div>
+                    <div class="phase-box">
+                        <h5>2. Prepare</h5>
+                        <ul>
+                            <li>Project Charter & Governance</li>
+                            <li>Sandbox Provisioning</li>
+                            <li>Custom Code Scoping</li>
+                            <li>CVI Pre-check (BP)</li>
+                        </ul>
+                    </div>
+                    <div class="phase-box">
+                        <h5>3. Explore</h5>
+                        <ul>
+                            <li>Fit-to-Standard Workshops</li>
+                            <li>Delta Requirement Analysis</li>
+                            <li>Integration & Security Design</li>
+                            <li>Trial Conversion Run 1</li>
+                        </ul>
+                    </div>
+                    <div class="phase-box">
+                        <h5>4. Realize</h5>
+                        <ul>
+                            <li>Trial Conversion Run 2 & 3</li>
+                            <li>Custom Code Adaptation</li>
+                            <li>SIT, UAT & Performance Run</li>
+                            <li>Cutover Dry Runs</li>
+                        </ul>
+                    </div>
+                    <div class="phase-box">
+                        <h5>5. Deploy</h5>
+                        <ul>
+                            <li>Final DMO Cutover Execution</li>
+                            <li>Business Validation & Go-Live</li>
+                            <li>Hypercare Handover</li>
+                            <li>System Decommissioning</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 3: Key Roles & Responsibilities -->
+        <div class="slide" id="slide-3">
+            <div class="slide-header">
+                <div>
+                    <h2 class="slide-title">Critical Governance & Project Roles</h2>
+                    <p class="slide-subtitle">RACI Matrix across Client, Implementation Partner, and SAP RISE Teams</p>
+                </div>
+            </div>
+            <div class="slide-body">
+                <div class="grid-3">
+                    <div class="info-card">
+                        <h4><i class="fas fa-user-tie"></i> Project Leadership & Steering</h4>
+                        <ul class="styled-list">
+                            <li><strong>Project Lead / Director:</strong> Program schedule, budget, risk, and steering committee alignment.</li>
+                            <li><strong>Solution Architect:</strong> End-to-end functional & technical design integrity across ECC and S/4HANA.</li>
+                            <li><strong>Change Management Lead:</strong> Fiori adoption, training, and business process enablement.</li>
+                        </ul>
+                    </div>
+                    <div class="info-card">
+                        <h4><i class="fas fa-microchip"></i> Technical & Basis Leads</h4>
+                        <ul class="styled-list">
+                            <li><strong>SAP Basis / DMO Lead:</strong> SUM DMO, Oracle to HANA DB conversion, OS/DB migration.</li>
+                            <li><strong>SAP BTP / Integration Lead:</strong> Middleware, cloud connectors, legacy interfaces.</li>
+                            <li><strong>ABAP Lead Developer:</strong> ABAP Test Cockpit (ATC), Clean Core refactoring, custom code.</li>
+                        </ul>
+                    </div>
+                    <div class="info-card">
+                        <h4><i class="fas fa-briefcase"></i> Functional Module Leads</h4>
+                        <ul class="styled-list">
+                            <li><strong>FICO Lead (ACDOCA & CVI):</strong> Universal Journal ledger mapping, Finance conversion, New Asset Accounting.</li>
+                            <li><strong>Logistics / MM / SD Lead:</strong> Business Partner conversion, Order-to-Cash, Procure-to-Pay alignment.</li>
+                            <li><strong>SAP RISE Cloud Lead:</strong> Infrastructure provisioning, Hyperscaler coordination, Enterprise Support.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 4: Functional S/4HANA Considerations -->
+        <div class="slide" id="slide-4">
+            <div class="slide-header">
+                <div>
+                    <h2 class="slide-title">Key S/4HANA Functional Impact Considerations</h2>
+                    <p class="slide-subtitle">Mandatory Simplifications & Structural Changes from ECC6</p>
+                </div>
+            </div>
+            <div class="slide-body">
+                <div class="grid-2">
+                    <div class="info-card">
+                        <h4><i class="fas fa-address-card"></i> Customer Vendor Integration (CVI)</h4>
+                        <p>Mandatory prerequisite prior to technical conversion. All Customers (`KNA1`) and Vendors (`LFA1`) must be converted into Business Partners (`BUT000`).</p>
+                        <br>
+                        <ul class="styled-list">
+                            <li>Must execute CVI synchronization in ECC6 before SUM DMO.</li>
+                            <li>Number range mapping & duplicate address cleanup required.</li>
+                        </ul>
+                    </div>
+                    <div class="info-card">
+                        <h4><i class="fas fa-file-invoice-dollar"></i> Finance Simplification (ACDOCA)</h4>
+                        <p>Replacement of GL tables (COEP, FAGLFLEXA, BSIS, BSAS) with single Universal Journal table `ACDOCA`.</p>
+                        <br>
+                        <ul class="styled-list">
+                            <li>Migration to New Asset Accounting (FI-AA) mandatory.</li>
+                            <li>Credit Management migrated to FSCM Credit Management.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 5: Technical & Custom Code Considerations -->
+        <div class="slide" id="slide-5">
+            <div class="slide-header">
+                <div>
+                    <h2 class="slide-title">Technical Considerations & Custom Code Modernization</h2>
+                    <p class="slide-subtitle">Remediating Legacy Z-Code & Embracing Clean Core</p>
+                </div>
+            </div>
+            <div class="slide-body">
+                <div class="grid-2">
+                    <div class="info-card">
+                        <h4><i class="fas fa-code"></i> ABAP Custom Code Remediation</h4>
+                        <ul class="styled-list">
+                            <li><strong>ABAP Test Cockpit (ATC):</strong> Execute S/4HANA checks in ECC6 to identify non-compliant statements (e.g. direct table writes to COEP/BSIS).</li>
+                            <li><strong>HANA Database Optimization:</strong> Remove database-dependent code (Oracle specific hints) and leverage CDS Views & Open SQL.</li>
+                            <li><strong>Unused Code Elimination:</strong> Decommission unused Z-transactions via UPL / CCLM metrics.</li>
+                        </ul>
+                    </div>
+                    <div class="info-card">
+                        <h4><i class="fas fa-cubes"></i> Clean Core & SAP BTP Strategy</h4>
+                        <ul class="styled-list">
+                            <li><strong>Decoupled Extensions:</strong> Move custom enhancements to SAP BTP (Business Technology Platform) via RAP / CAP models.</li>
+                            <li><strong>Standard APIs & Core Data Services:</strong> Replace direct SQL reads with standard OData services and Core Data Services (CDS).</li>
+                            <li><strong>UX Transformation:</strong> Transition users from SAP GUI to modern SAP Fiori Launchpad.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 6: Cutover & SUM DMO Execution -->
+        <div class="slide" id="slide-6">
+            <div class="slide-header">
+                <div>
+                    <h2 class="slide-title">Data Migration & Downtime Optimization (SUM DMO)</h2>
+                    <p class="slide-subtitle">Oracle AnyDB to S/4HANA HANA DB Migration Strategy</p>
+                </div>
+            </div>
+            <div class="slide-body">
+                <div class="grid-2">
+                    <div class="info-card">
+                        <h4><i class="fas fa-database"></i> Database Migration Option (DMO)</h4>
+                        <p>SUM DMO combines Unicode Conversion, Software Upgrade, and Database Migration into a single downtime window.</p>
+                        <br>
+                        <ul class="styled-list">
+                            <li>Direct migration from Oracle AnyDB to SAP HANA DB on RISE Cloud.</li>
+                            <li>Benchmarking table export/import performance over high-speed ExpressRoute / DirectConnect network links.</li>
+                        </ul>
+                    </div>
+                    <div class="info-card">
+                        <h4><i class="fas fa-clock"></i> Downtime Minimization Tactics</h4>
+                        <ul class="styled-list">
+                            <li><strong>DMO with Downtime Optimized Option (dt-Opt):</strong> Pre-migrates large application tables during business uptime.</li>
+                            <li><strong>NZDT (Near-Zero Downtime Technology):</strong> For mission-critical systems requiring &lt; 8 hours total business outage.</li>
+                            <li><strong>Table Splitting & R3load Parallelization:</strong> Tuning thread count based on network bandwidth and target HANA memory.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 7: Risk Management & Governance -->
+        <div class="slide" id="slide-7">
+            <div class="slide-header">
+                <div>
+                    <h2 class="slide-title">Risk Management & Success Factors</h2>
+                    <p class="slide-subtitle">Mitigating Critical Transformation Risks</p>
+                </div>
+            </div>
+            <div class="slide-body">
+                <div class="grid-3">
+                    <div class="info-card">
+                        <h4><i class="fas fa-shield-alt"></i> Risk: Data Inconsistencies</h4>
+                        <p><strong>Mitigation:</strong> Execute pre-conversion financial consistency checks (FIN_CORR_MONITOR) in ECC6 prior to cutover.</p>
+                    </div>
+                    <div class="info-card">
+                        <h4><i class="fas fa-plug"></i> Risk: Interface Disruption</h4>
+                        <p><strong>Mitigation:</strong> Comprehensive interface inventory; migrate legacy RFC/IDOC adapters to SAP Integration Suite (BTP) OData services.</p>
+                    </div>
+                    <div class="info-card">
+                        <h4><i class="fas fa-users"></i> Risk: User Resistance</h4>
+                        <p><strong>Mitigation:</strong> Role-based Fiori enablement early during Explore phase; structured user adoption KPI tracking.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 8: Recommendation & Next Steps -->
+        <div class="slide" id="slide-8">
+            <div class="slide-header">
+                <div>
+                    <h2 class="slide-title">Solution Architect & Project Lead Recommendation</h2>
+                    <p class="slide-subtitle">Immediate Roadmap Actions for Project Kickoff</p>
+                </div>
+            </div>
+            <div class="slide-body">
+                <div class="info-card">
+                    <h4><i class="fas fa-flag-checkered"></i> Immediate Action Plan (Next 30 Days)</h4>
+                    <ul class="styled-list">
+                        <li><strong>1. Execute SAP Readiness Check 2.0:</strong> Upload ECC6 collector data to SAP Cloud to generate Simplification Item Catalog & CVI pre-analysis.</li>
+                        <li><strong>2. Initiate CVI (Customer Vendor Integration) Project:</strong> Start BP synchronization in ECC6 production landscape immediately.</li>
+                        <li><strong>3. Provision Sandbox Conversion System:</strong> Take production copy of ECC6 and execute first trial SUM DMO migration on RISE Cloud.</li>
+                        <li><strong>4. Finalize Project Governance & Partner Onboarding:</strong> Mobilize Joint Steering Committee, SAP RISE Cloud Architect, and Implementation Partner.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <footer>
+        <span>Prepared by: SAP Solution Architect & Project Lead</span>
+        <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+        <span>Confidential - Transformation Blueprint</span>
+    </footer>
+
+    <script>
+        let currentSlide = 1;
+        const totalSlides = 8;
+
+        const btnPrev = document.getElementById('btn-prev');
+        const btnNext = document.getElementById('btn-next');
+        const slideNumDisplay = document.getElementById('slide-number');
+        const progressFill = document.getElementById('progress-fill');
+
+        function updateSlide() {
+            document.querySelectorAll('.slide').forEach((s, idx) => {
+                if (idx + 1 === currentSlide) {
+                    s.classList.add('active');
+                } else {
+                    s.classList.remove('active');
+                }
+            });
+
+            slideNumDisplay.innerText = `Slide ${currentSlide} / ${totalSlides}`;
+            progressFill.style.width = `${(currentSlide / totalSlides) * 100}%`;
+        }
+
+        btnPrev.addEventListener('click', () => {
+            if (currentSlide > 1) {
+                currentSlide--;
+                updateSlide();
+            }
+        });
+
+        btnNext.addEventListener('click', () => {
+            if (currentSlide < totalSlides) {
+                currentSlide++;
+                updateSlide();
+            }
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ') {
+                if (currentSlide < totalSlides) { currentSlide++; updateSlide(); }
+            } else if (e.key === 'ArrowLeft') {
+                if (currentSlide > 1) { currentSlide--; updateSlide(); }
+            }
+        });
+    </script>
+</body>
+</html>
